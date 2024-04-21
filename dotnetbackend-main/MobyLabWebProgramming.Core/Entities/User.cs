@@ -17,7 +17,6 @@ public class User : BaseEntity
     /// Collection such as this can be used for Many-To-One or Many-To-Many relations.
     /// Note that this field will be null if not explicitly requested via a Include query, also note that the property is used by the ORM, in the database this collection doesn't exist. 
     /// </summary>
-    public ICollection<UserFile> UserFiles { get; set; } = default!;
     public ICollection<AdreseFacturare> Addreses { get; set; } = default!;
     public ICollection<ShopCart> Carts { get; set; } = default!;
     public ICollection<Items> Products { get; set; } = default!;
