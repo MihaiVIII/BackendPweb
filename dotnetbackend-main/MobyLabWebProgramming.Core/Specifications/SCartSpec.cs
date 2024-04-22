@@ -13,4 +13,15 @@ public sealed class SCartSpec : BaseSpec<SCartSpec, ShopCart>
     {
     }
 
+    public SCartSpec(Guid UserId,bool state)
+    {
+        if (state == true)
+        {
+            Query.Where(e => e.UserId == UserId && e.InUse == state);
+        }
+        else
+        {
+            Query.Where(e => e.UserId == UserId);
+        }
+    }
 }

@@ -70,44 +70,7 @@ public class FacturiService : IFacturiService
             IdAdd = AddrId,
             UserId = requestingUser.Id
         }, cancellationToken); // A new entity is created and persisted in the database.
-
-        return ServiceResponse.ForSuccess();
-    }
-
-    public async Task<ServiceResponse> AddItemToCart(Guid id, ItemDTO item, UserDTO? requestingUser = default, CancellationToken cancellationToken = default)
-    {   
-        if (requestingUser != null && requestingUser.Role != UserRoleEnum.Client) 
-        {
-            return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the client can update the cart!", ErrorCodes.CannotUpdate));
-        }
-
-        var entity = await _repository.GetAsync(new SCartSpec(id), cancellationToken); 
-        var prod = await _repository.GetAsync(new ItemsSpec(item.Id), cancellationToken);
-        if (entity != null && prod != null && prod.Quantity > 0)
-        {
-            entity.Price += item.Price;
-            entity.Count += 1;
-            prod.Quantity -= 1;
-            await _repository.UpdateAsync(entity, cancellationToken);
-            await _repository.UpdateAsync(prod, cancellationToken);
-
-            var prod_in_cart = await _repository.GetAsync(new ItemsInCartSpec(id, id,item.Id), cancellationToken);
-            if (prod_in_cart != null)
-            {
-                prod_in_cart.Quantity += 1;
-            }
-            else
-            {
-                await _repository.AddAsync(new Item_In_Carts
-                {
-                    Quantity = 1,
-                    CartId = id,
-                    ItemId = item.Id
-                    
-                }, cancellationToken);
-            }
-        }
-
+        cart.InUse = false;
         return ServiceResponse.ForSuccess();
     }
 

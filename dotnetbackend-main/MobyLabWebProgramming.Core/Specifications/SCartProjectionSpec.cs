@@ -41,4 +41,15 @@ public sealed class SCartProjectionSpec : BaseSpec<SCartProjectionSpec, ShopCart
         Query.Where(e => e.UserId == UserId);
     }
 
+    public SCartProjectionSpec(Guid UserId,bool state)
+    {
+        if (state == true)
+        {
+            Query.Where(e => e.UserId == UserId && e.InUse == state);
+        }
+        else
+        {
+            Query.Where(e => e.UserId == UserId);
+        }
+    }
 }

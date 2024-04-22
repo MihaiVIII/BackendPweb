@@ -15,6 +15,8 @@ public class ShopCartsConfig : IEntityTypeConfiguration<ShopCart>
             .IsRequired();
         builder.Property(e => e.Count)
             .IsRequired();
+        builder.Property(e => e.InUse)
+            .IsRequired();
         builder.Property(e => e.CreatedAt)
             .IsRequired();
         builder.Property(e => e.UpdatedAt)

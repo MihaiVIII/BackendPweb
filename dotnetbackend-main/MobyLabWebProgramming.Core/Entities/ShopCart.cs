@@ -7,7 +7,7 @@ public class ShopCart : BaseEntity
 {
     public int Count { get; set; } = default!;
     public int Price { get; set; } = default!;
-
+    public bool InUse { get; set; } = false;
     public Guid UserId { get; set; }
     public User User { get; set; } = default!;
 

@@ -36,7 +36,7 @@ public class SCartService : ISCartService
 
     public async Task<ServiceResponse<CartDTO>> GetUserCart(Guid id, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetAsync(new SCartProjectionSpec(id,id), cancellationToken);
+        var result = await _repository.GetAsync(new SCartProjectionSpec(id,true), cancellationToken);
 
         return result != null ?
             ServiceResponse<CartDTO>.ForSuccess(result) :
@@ -70,12 +70,18 @@ public class SCartService : ISCartService
         {
             return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the client can create cart to self!", ErrorCodes.CannotAdd));
         }
+        var cart = await _repository.GetAsync(new SCartSpec(requestingUser.Id,true), cancellationToken);
+
+        if (cart != null)
+        {
+            return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "The client can have only one cart in use!", ErrorCodes.CannotAdd));
+        }
 
         await _repository.AddAsync(new ShopCart
         {
             Price = 0,
             Count = 0,
-
+            InUse = true,
             UserId = requestingUser.Id
         }, cancellationToken); // A new entity is created and persisted in the database.
 

@@ -8,27 +8,24 @@ namespace MobyLabWebProgramming.Infrastructure.Services.Interfaces;
 public interface IItemService
 {
     /// <summary>
-    /// GetAddress will provide the information about an Address given its user Id.
+    /// GetItem will provide the information about an Item given its Id.
     /// </summary>
     public Task<ServiceResponse<ItemDTO>> GetItem(Guid id, CancellationToken cancellationToken = default);
     /// <summary>
-    /// GetAddreses returns page with Address information from the database.
+    /// GetItems returns page with items information from the database.
     /// </summary>
     public Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(PaginationSearchQueryParams pagination, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// AddAddr adds an addr and verifies if requesting user has permissions to add one.
-    /// If the requesting addr is null then no verification is performed as it indicates that the application.
+    /// AddItem adds an item and verifies if requesting user has permissions to add one.
     /// </summary>
     public Task<ServiceResponse> AddItem(ItemAddDTO item, UserDTO requestingUser, CancellationToken cancellationToken = default);
     /// <summary>
-    /// UpdateAddr updates an addr and verifies if requesting user has permissions to update
-    /// If the requesting addr is null then no verification is performed as it indicates that the application.
+    /// UpdateItem updates an Item and verifies if requesting item has permissions to update
     /// </summary>
     public Task<ServiceResponse> UpdateItem(ItemUpdateDTO item, UserDTO requestingUser, CancellationToken cancellationToken = default);
     /// <summary>
-    /// DeleteAddr deletes an addr and verifies if requesting user has permissions to delete it, if the addr is his own then that should be allowed.
-    /// If the requesting addr is null then no verification is performed as it indicates that the application.
+    /// DeleteItem deletes an Item and verifies if requesting user has permissions to delete it, if the item is his own then that should be allowed.
     /// </summary>
     public Task<ServiceResponse> DeleteItem(Guid id, UserDTO requestingUser, CancellationToken cancellationToken = default);
 

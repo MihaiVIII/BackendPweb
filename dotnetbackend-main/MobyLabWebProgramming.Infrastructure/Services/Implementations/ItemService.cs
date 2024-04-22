@@ -105,7 +105,7 @@ public class ItemService : IItemService
             return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the Producer can delete the item!", ErrorCodes.CannotDelete));
 
         }
-        if (requestingUser.Role == UserRoleEnum.Client) // Verify who can add the user, you can change this however you se fit.
+        if (requestingUser.Role == UserRoleEnum.Client) 
         {
             return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the Producer can delete the item!", ErrorCodes.CannotDelete));
         }
