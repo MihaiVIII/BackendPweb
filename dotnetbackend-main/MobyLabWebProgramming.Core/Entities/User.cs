@@ -21,4 +21,6 @@ public class User : BaseEntity
     public ICollection<ShopCart> Carts { get; set; } = default!;
     public ICollection<Items> Products { get; set; } = default!;
     public ICollection<Facturi> Facturi { get; set; } = default!;
+
+    public ICollection<Feedback> Feedbacks {get; set; } = default!;
 }

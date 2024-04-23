@@ -71,6 +71,7 @@ public class FacturiService : IFacturiService
             UserId = requestingUser.Id
         }, cancellationToken); // A new entity is created and persisted in the database.
         cart.InUse = false;
+        await _repository.UpdateAsync(cart, cancellationToken);
         return ServiceResponse.ForSuccess();
     }
 

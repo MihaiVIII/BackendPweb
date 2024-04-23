@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MobyLabWebProgramming.Infrastructure.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MobyLabWebProgramming.Infrastructure.Migrations
 {
     [DbContext(typeof(WebAppDatabaseContext))]
-    partial class WebAppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240423175209_feedback3")]
+    partial class feedback3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,6 +144,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("UserId")
+                        .IsRequired()
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -327,7 +330,8 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                     b.HasOne("MobyLabWebProgramming.Core.Entities.User", "User")
                         .WithMany("Feedbacks")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

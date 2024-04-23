@@ -20,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Entities\Feedback.cs">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Entities\Facturi.cs">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Compile>
