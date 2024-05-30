@@ -19,7 +19,7 @@ public sealed class AddrFProjectionSpec : BaseSpec<AddrFProjectionSpec, AdreseFa
     {
         Id = e.Id,
         City = e.City,
-        Street = e.City,
+        Street = e.Street,
         SNumber = e.SNumber,
         Scara = e.Scara,
         Bloc = e.Bloc,

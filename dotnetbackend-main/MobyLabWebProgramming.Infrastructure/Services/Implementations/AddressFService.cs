@@ -56,7 +56,7 @@ public class AddressFservice : IAddressFService
         await _repository.AddAsync(new AdreseFacturare
         {
             City = address.City,
-            Street = address.City,
+            Street = address.Street,
             SNumber = address.SNumber,
             Scara = address.Scara,
             Bloc = address.Bloc,
@@ -114,12 +114,10 @@ public class AddressFservice : IAddressFService
         return ServiceResponse.ForSuccess();
     }
 
-    public async Task<ServiceResponse<AddressDTO>> GetAddressFromUser(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<PagedResponse<AddressDTO>>> GetAddressFromUser(PaginationSearchQueryParams pagination, Guid id, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetAsync(new AddrFProjectionSpec(id,id), cancellationToken); // Get a user using a specification on the repository.
+        var result = await _repository.PageAsync(pagination,new AddrFProjectionSpec(id,id), cancellationToken); // Get a user using a specification on the repository.
 
-        return result != null ?
-            ServiceResponse<AddressDTO>.ForSuccess(result) :
-            ServiceResponse<AddressDTO>.FromError(CommonErrors.AddrNotFound); // Pack the result or error into a ServiceResponse.
+        return ServiceResponse<PagedResponse<AddressDTO>>.ForSuccess(result);
     }
 }

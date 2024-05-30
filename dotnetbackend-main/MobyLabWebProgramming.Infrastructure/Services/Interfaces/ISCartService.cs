@@ -14,7 +14,7 @@ public interface ISCartService
     /// <summary>
     ///  GetCart will provide the information about an Cart given its users Id.
     /// </summary>
-    public Task<ServiceResponse<CartDTO>> GetUserCart(Guid id, CancellationToken cancellationToken = default);
+    public Task<ServiceResponse<CartDTO>> GetUserCart(UserDTO requestingUser, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// returns all items from a cart from the database.

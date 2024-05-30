@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MobyLabWebProgramming.Core.DataTransferObjects;
 using MobyLabWebProgramming.Core.Requests;
 using MobyLabWebProgramming.Core.Responses;
@@ -41,14 +42,14 @@ public class AddressFController : AuthorizedController // Here we use the Author
     }
 
     [Authorize] // You need to use this attribute to protect the route access, it will return a Forbidden status code if the JWT is not present or invalid, and also it will decode the JWT token.
-    [HttpGet("{id:guid}")] // This attribute will make the controller respond to a HTTP GET request on the route /api/User/GetById/<some_guid>.
-    public async Task<ActionResult<RequestResponse<AddressDTO>>> GetByUserId([FromRoute] Guid id) // The FromRoute attribute will bind the id from the route to this parameter.
+    [HttpGet] // This attribute will make the controller respond to a HTTP GET request on the route /api/User/GetById/<some_guid>.
+    public async Task<ActionResult<RequestResponse<PagedResponse<AddressDTO>>>> GetByUserId([FromQuery] PaginationSearchQueryParams pagination) // The FromQuery attribute will bind the parameters matching the names of
     {
         var currentUser = await GetCurrentUser();
 
-        return currentUser.Result != null ?
-            this.FromServiceResponse(await _addressFService.GetAddressFromUser(id)) :
-            this.ErrorMessageResult<AddressDTO>(currentUser.Error);
+        return currentUser.Result != null && pagination.Search!=null?
+            this.FromServiceResponse(await _addressFService.GetAddressFromUser(pagination,new Guid(pagination.Search))) :
+            this.ErrorMessageResult<PagedResponse<AddressDTO>>(currentUser.Error);
     }
 
     /// <summary>

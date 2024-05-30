@@ -14,7 +14,7 @@ public interface IItemService
     /// <summary>
     /// GetItems returns page with items information from the database.
     /// </summary>
-    public Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(PaginationSearchQueryParams pagination, CancellationToken cancellationToken = default);
+    public Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(PaginationSearchQueryParams pagination, UserDTO requestingUser, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// AddItem adds an item and verifies if requesting user has permissions to add one.
@@ -30,4 +30,6 @@ public interface IItemService
     public Task<ServiceResponse> DeleteItem(Guid id, UserDTO requestingUser, CancellationToken cancellationToken = default);
 
     public Task<ServiceResponse<int>> GetItemCount(CancellationToken cancellationToken = default);
+
+    public Task<ServiceResponse> AddItemAdmin(ItemAdminAddDTO item, UserDTO requestingUser, CancellationToken cancellationToken = default);
 }

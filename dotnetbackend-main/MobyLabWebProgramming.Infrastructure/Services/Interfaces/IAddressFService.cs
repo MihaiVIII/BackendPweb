@@ -31,5 +31,5 @@ public interface IAddressFService
     /// </summary>
     public Task<ServiceResponse> DeleteAddr(Guid id, UserDTO? requestingUser = default, CancellationToken cancellationToken = default);
 
-    public Task<ServiceResponse<AddressDTO>> GetAddressFromUser(Guid id, CancellationToken cancellationToken = default);
+    public Task<ServiceResponse<PagedResponse<AddressDTO>>> GetAddressFromUser(PaginationSearchQueryParams pagination, Guid id, CancellationToken cancellationToken = default);
 }

@@ -34,9 +34,9 @@ public class ItemService : IItemService
             ServiceResponse<ItemDTO>.FromError(CommonErrors.ItemNotFound); // Pack the result or error into a ServiceResponse.
     }
 
-    public async Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(PaginationSearchQueryParams pagination, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(PaginationSearchQueryParams pagination, UserDTO requestingUser, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.PageAsync(pagination, new ItemProjectionSpec(pagination.Search), cancellationToken); // Use the specification and pagination API to get only some entities from the database.
+        var result = await _repository.PageAsync(pagination, new ItemProjectionSpec(pagination.Search,requestingUser), cancellationToken); // Use the specification and pagination API to get only some entities from the database.
 
         return ServiceResponse<PagedResponse<ItemDTO>>.ForSuccess(result);
     }
@@ -79,7 +79,7 @@ public class ItemService : IItemService
         {
             return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the producer can add product to self!", ErrorCodes.CannotAdd));
         }
-        if (requestingUser.Role != UserRoleEnum.Producer || requestingUser.Id != item.Producer) // Verify who can add the user, you can change this however you se fit.
+        if (requestingUser.Role != UserRoleEnum.Admin && requestingUser.Id != item.Producer) // Verify who can add the user, you can change this however you se fit.
         {
             return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the producer update the products!", ErrorCodes.CannotUpdate));
         }
@@ -125,4 +125,35 @@ public class ItemService : IItemService
 
     public async Task<ServiceResponse<int>> GetItemCount(CancellationToken cancellationToken = default) =>
         ServiceResponse<int>.ForSuccess(await _repository.GetCountAsync<User>(cancellationToken)); // Get the count of all user entities in the database.
+
+    public async Task<ServiceResponse> AddItemAdmin(ItemAdminAddDTO item, UserDTO requestingUser, CancellationToken cancellationToken = default)
+    {
+
+        if (requestingUser != null && requestingUser.Role != UserRoleEnum.Admin) // Verify who can add the user, you can change this however you se fit.
+        {
+            return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the admin can add product!", ErrorCodes.CannotAdd));
+        }
+        if (requestingUser == null)
+        {
+            return ServiceResponse.FromError(new(HttpStatusCode.Forbidden, "Only the producer can add product!", ErrorCodes.CannotAdd));
+        }
+
+        var result = await _repository.GetAsync(new ItemsSpec(item.Name), cancellationToken);
+
+        if (result != null)
+        {
+            return ServiceResponse.FromError(new(HttpStatusCode.Conflict, "The Item already exists!", ErrorCodes.UserAlreadyExists));
+        }
+
+        await _repository.AddAsync(new Items
+        {
+            Name = item.Name,
+            Price = item.Price,
+            Quantity = item.Quantity,
+
+            UserId = item.UserId
+        }, cancellationToken); // A new entity is created and persisted in the database.
+
+        return ServiceResponse.ForSuccess();
+    }
 }

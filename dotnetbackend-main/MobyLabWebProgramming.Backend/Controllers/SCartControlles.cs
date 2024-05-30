@@ -51,7 +51,7 @@ public class SCartController : AuthorizedController // Here we use the Authorize
         var currentUser = await GetCurrentUser();
 
         return currentUser.Result != null ?
-            this.FromServiceResponse(await _sCartService.GetUserCart(id)) :
+            this.FromServiceResponse(await _sCartService.GetUserCart(currentUser.Result)) :
             this.ErrorMessageResult<CartDTO>(currentUser.Error);
     }
 
@@ -66,9 +66,14 @@ public class SCartController : AuthorizedController // Here we use the Authorize
     public async Task<ActionResult<RequestResponse<PagedResponse<ItemDTO>>>> GetPage([FromQuery] PaginationSearchQueryParams pagination)                                                                                                                // the PaginationSearchQueryParams properties to the object in the method parameter.
     {
         var currentUser = await GetCurrentUser();
-        return currentUser.Result != null ?
-            this.FromServiceResponse(await _sCartService.GetItems(Guid.Parse(pagination.Search),pagination)) :
-            this.ErrorMessageResult<PagedResponse<ItemDTO>>(currentUser.Error);
+        if (currentUser.Result == null)
+        {
+            return this.ErrorMessageResult<PagedResponse<ItemDTO>>(currentUser.Error);
+        }
+        var cart = await _sCartService.GetUserCart(currentUser.Result);
+        return cart.Result != null ?
+            this.FromServiceResponse(await _sCartService.GetItems(cart.Result.Id,pagination)) :
+            this.ErrorMessageResult<PagedResponse<ItemDTO>>(cart.Error);
     }
 
     /// <summary>
@@ -98,7 +103,7 @@ public class SCartController : AuthorizedController // Here we use the Authorize
         {
             return this.ErrorMessageResult(currentUser.Error);
         }
-        var cart = await _sCartService.GetUserCart(currentUser.Result.Id);
+        var cart = await _sCartService.GetUserCart(currentUser.Result);
         return cart.Result != null ?
             this.FromServiceResponse(await _sCartService.AddItemToCart(cart.Result.Id,item, currentUser.Result)) :
             this.ErrorMessageResult(cart.Error);
@@ -116,7 +121,7 @@ public class SCartController : AuthorizedController // Here we use the Authorize
         {
             return this.ErrorMessageResult(currentUser.Error);
         }
-        var cart = await _sCartService.GetUserCart(currentUser.Result.Id);
+        var cart = await _sCartService.GetUserCart(currentUser.Result);
         return cart.Result != null ?
             this.FromServiceResponse(await _sCartService.RemoveItemFromCart(cart.Result.Id, item, currentUser.Result)) :
             this.ErrorMessageResult(cart.Error);

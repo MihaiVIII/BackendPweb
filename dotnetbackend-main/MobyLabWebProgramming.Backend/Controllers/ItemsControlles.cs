@@ -53,7 +53,7 @@ public class ItemsController : AuthorizedController // Here we use the Authorize
         var currentUser = await GetCurrentUser();
 
         return currentUser.Result != null ?
-            this.FromServiceResponse(await _itemService.GetItems(pagination)) :
+            this.FromServiceResponse(await _itemService.GetItems(pagination,currentUser.Result)) :
             this.ErrorMessageResult<PagedResponse<ItemDTO>>(currentUser.Error);
     }
 
@@ -69,6 +69,18 @@ public class ItemsController : AuthorizedController // Here we use the Authorize
 
         return currentUser.Result != null ?
             this.FromServiceResponse(await _itemService.AddItem(item, currentUser.Result)) :
+            this.ErrorMessageResult(currentUser.Error);
+    }
+
+    [Authorize]
+    [HttpPost] // This attribute will make the controller respond to a HTTP POST request on the route /api/User/Add.
+    public async Task<ActionResult<RequestResponse>> AddAdmin([FromBody] ItemAdminAddDTO item)
+    {
+        var currentUser = await GetCurrentUser();
+
+
+        return currentUser.Result != null ?
+            this.FromServiceResponse(await _itemService.AddItemAdmin(item, currentUser.Result)) :
             this.ErrorMessageResult(currentUser.Error);
     }
 

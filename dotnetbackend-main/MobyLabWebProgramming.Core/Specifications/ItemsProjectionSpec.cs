@@ -42,7 +42,7 @@ public sealed class ItemProjectionSpec : BaseSpec<ItemProjectionSpec, Items, Ite
         Query.Where(e => e.UserId == UserId);
     }
 
-    public ItemProjectionSpec(string? search)
+    public ItemProjectionSpec(string? search,UserDTO user)
     {
         search = !string.IsNullOrWhiteSpace(search) ? search.Trim() : null;
 
@@ -50,10 +50,15 @@ public sealed class ItemProjectionSpec : BaseSpec<ItemProjectionSpec, Items, Ite
         {
             return;
         }
+        if (search == "IsMine")
+        {
+            Query.Where(e => e.UserId == user.Id);
+        }
+        else
+        {
+            var searchExpr = $"%{search.Replace(" ", "%")}%";
 
-        var searchExpr = $"%{search.Replace(" ", "%")}%";
-
-        Query.Where(e => EF.Functions.ILike(e.Name, searchExpr)); // This is an example on who database specific expressions can be used via C# expressions.
-                                                                                           // Note that this will be translated to the database something like "where user.Name ilike '%str%'".
+            Query.Where(e => EF.Functions.ILike(e.Name, searchExpr)); // This is an example on who database specific expressions can be used via C# expressions.
+        }                                                                                 // Note that this will be translated to the database something like "where user.Name ilike '%str%'".
     }
 }

@@ -34,9 +34,16 @@ public class SCartService : ISCartService
             ServiceResponse<CartDTO>.FromError(CommonErrors.CartNotFound); // Pack the result or error into a ServiceResponse.
     }
 
-    public async Task<ServiceResponse<CartDTO>> GetUserCart(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<CartDTO>> GetUserCart(UserDTO requestingUser, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetAsync(new SCartProjectionSpec(id,true), cancellationToken);
+        var result = await _repository.GetAsync(new SCartProjectionSpec(requestingUser.Id,true), cancellationToken);
+
+        if (result == null)
+        {
+            await CreateCart(requestingUser,cancellationToken);
+            result = await _repository.GetAsync(new SCartProjectionSpec(requestingUser.Id, true), cancellationToken);
+
+        }
 
         return result != null ?
             ServiceResponse<CartDTO>.ForSuccess(result) :
@@ -45,15 +52,16 @@ public class SCartService : ISCartService
 
     public async Task<ServiceResponse<PagedResponse<ItemDTO>>> GetItems(Guid id, PaginationSearchQueryParams pagination, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.PageAsync(pagination, new ItemsInCartProjectionSpec(id,id), cancellationToken);
-
-        foreach (var item in result.Data)
+        var Itc = await _repository.PageAsync(pagination, new ItemsInCartProjectionSpec(id,id), cancellationToken);
+        var result = new PagedResponse<ItemDTO>(Itc.Page,Itc.PageSize,Itc.TotalCount,new List<ItemDTO>());
+        foreach (var item in Itc.Data)
         {
-            var aux = await _repository.GetAsync(new ItemProjectionSpec(item.Id), cancellationToken);
+            var aux = await _repository.GetAsync(new ItemProjectionSpec(item.ItemID), cancellationToken);
             if (aux != null)
             {
-                item.Name = aux.Name;
-                item.Price = aux.Price;
+                aux.Quantity = item.Quantity;
+                aux.Price *= item.Quantity;
+                result.Data.Add(aux);
             }
         }
         return ServiceResponse<PagedResponse<ItemDTO>>.ForSuccess(result);
@@ -99,7 +107,7 @@ public class SCartService : ISCartService
         var prod = await _repository.GetAsync(new ItemsSpec(item.Id), cancellationToken);
         if (entity != null && prod != null && prod.Quantity > 0)
         {
-            entity.Price += item.Price;
+            entity.Price += prod.Price;
             entity.Count += 1;
             prod.Quantity -= 1;
             await _repository.UpdateAsync(entity, cancellationToken);
@@ -109,6 +117,7 @@ public class SCartService : ISCartService
             if (prod_in_cart != null)
             {
                 prod_in_cart.Quantity += 1;
+                await _repository.UpdateAsync(prod_in_cart, cancellationToken);
             }
             else
             {
@@ -136,7 +145,7 @@ public class SCartService : ISCartService
         var prod = await _repository.GetAsync(new ItemsSpec(item.Id), cancellationToken);
         if (entity != null && prod != null && entity.Count > 0)
         {
-            entity.Price -= item.Price;
+            entity.Price -= prod.Price;
             entity.Count -= 1;
             prod.Quantity += 1;
             await _repository.UpdateAsync(entity, cancellationToken);
@@ -146,7 +155,8 @@ public class SCartService : ISCartService
             if (prod_in_cart != null)
             {
                 prod_in_cart.Quantity -= 1;
-                if(prod_in_cart.Quantity <= 0)
+                await _repository.UpdateAsync(prod_in_cart, cancellationToken);
+                if (prod_in_cart.Quantity <= 0)
                 {
                     await _repository.DeleteAsync<Item_In_Carts>(prod_in_cart.Id, cancellationToken);
                 }
